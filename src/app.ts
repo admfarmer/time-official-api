@@ -99,7 +99,7 @@ app.get('/', async (req: fastify.FastifyRequest<http.IncomingMessage>, reply: fa
 const port = +process.env.HTTP_PORT || 3000;
 const host = process.env.HTTP_ADDRESS || '0.0.0.0';
 
-app.listen(port, (err) => {
+app.listen(port, host, (err) => {
   if (err) throw err;
   console.log(app.server.address());
 });
