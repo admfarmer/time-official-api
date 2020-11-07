@@ -40,11 +40,23 @@ const router = (fastify, { }, next) => {
           status: '0'
         }
 
+        let info_msg: any = {
+          msg: [
+            {
+              cid: cid,
+              fullname: `${title}${fname} ${lname}`,
+              work_date_in: moment(work_date_in).tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm:ss'),
+              work_date_out: '0000-00-00 00:00:00',
+              status: '0'
+            }
+          ]
+        }
+
         try {
           let rs: any = await workTimeOfficialModel.save(db, info_insert);
           const topic = 'timeofficial';
 
-          fastify.mqttClient.publish(topic, JSON.stringify(info_insert), { qos: 0, retain: false });
+          fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
           reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_insert, });
 
         } catch (error) {
@@ -65,7 +77,6 @@ const router = (fastify, { }, next) => {
         try {
           let rs: any = await workTimeOfficialModel.update(db, x.id, info_update);
 
-          const topic = 'timeofficial';
           let info_: any = {
             cid: x.cid,
             fullname: x.fullname,
@@ -73,9 +84,22 @@ const router = (fastify, { }, next) => {
             work_date_out: info_update.work_date_out,
             status: x.status,
           }
-          console.log(info_);
+          // console.log(info_);
+          let info_msg: any = {
+            msg: [
+              {
+                cid: x.cid,
+                fullname: x.fullname,
+                work_date_in: moment(x.work_date_in).tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm:ss'),
+                work_date_out: info_update.work_date_out,
+                status: x.status,
+              }
+            ]
+          }
 
-          fastify.mqttClient.publish(topic, JSON.stringify(info_), { qos: 0, retain: false });
+          const topic = 'timeofficial';
+
+          fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
           reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_, });
 
         } catch (error) {
