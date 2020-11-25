@@ -4,7 +4,12 @@ export class WorkTimeOfficialModel {
   tableName: string = 'work_time_official';
 
   list(db: Knex) {
-    return db(this.tableName)
+    return db(this.tableName).orderBy('work_date_in', 'DESC')
+  }
+
+  select_date(db: Knex, work_sdate: any, work_edate: any) {
+    return db(this.tableName).whereBetween('work_date_in', [work_sdate, work_edate])
+      .orderBy('work_date_in', 'DESC')
   }
 
   info_cid(db: Knex, cid: any) {
@@ -18,9 +23,9 @@ export class WorkTimeOfficialModel {
       .andWhere('work_date_out', '0000-00-00 00:00:00');
   }
 
-  info_work_date(db: Knex, work_date: any) {
+  info_work_date(db: Knex, work_date_in: any) {
     return db(this.tableName)
-      .where('work_date', work_date);
+      .where('work_date_in', work_date_in);
   }
 
   save(db: Knex, datas: any) {

@@ -130,6 +130,18 @@ const router = (fastify, { }, next) => {
     }
   })
 
+  //select_date?work_sdate=xxxx&work_edate=xxx
+  fastify.get('/select_date', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+    let work_sdate = req.query.work_sdate
+    let work_edate = req.query.work_edate
+    try {
+      const rs: any = await workTimeOfficialModel.select_date(db, work_sdate, work_edate);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+  })
   fastify.post('/infoCid', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
     const cid: any = req.body.cid
     try {
