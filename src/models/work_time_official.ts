@@ -48,4 +48,10 @@ export class WorkTimeOfficialModel {
       .where('id', ID)
       .update('status', '1')
   }
+
+
+  person_cid(db: Knex, cid: any) {
+    return db('person').select('idcard', 'title', 'name', 'lastname')
+      .where('cid', cid);
+  }
 }
