@@ -52,6 +52,6 @@ export class WorkTimeOfficialModel {
 
   person_cid(db: Knex, cid: any) {
     return db('person').select('idcard', 'title', 'name', 'lastname')
-      .where('cid', cid);
+      .where('idcard', cid);
   }
 }
