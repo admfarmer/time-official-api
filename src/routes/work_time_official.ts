@@ -21,16 +21,27 @@ const router = (fastify, { }, next) => {
   fastify.post('/profile', async (req: fastify.Request, reply: fastify.Reply) => {
     console.log('info profile');
     let profile: any = req.body;
+    let time_work: any = req.body.time_work;
+    let topic:any;
+    let topic_full:any= `timeofficial/full`;
+    
+    if(time_work){
+      topic = `timeofficial/${time_work}`;
+    }else{
+      topic = `timeofficial`;
+    }
+
 
     if (profile) {
       const rs: any = await workTimeOfficialModel.person_cid(db, profile.cid);
 
       if (!rs[0]) {
-        const topic = 'timeofficial';
+        // const topic = 'timeofficial';
         let info_msg = {
           info: 'กรุณาลงทำเบียนบุคลากรก่อน'
         }
         fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
+        fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
         reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info_msg });
       } else {
         let info_data: any = await workTimeOfficialModel.select_cid(db, profile.cid);
@@ -64,9 +75,10 @@ const router = (fastify, { }, next) => {
 
           try {
             let rs: any = await workTimeOfficialModel.save(db, info_insert);
-            const topic = 'timeofficial';
+            // const topic = 'timeofficial';
 
             fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
+            fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
             reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_insert, });
 
           } catch (error) {
@@ -107,9 +119,10 @@ const router = (fastify, { }, next) => {
               ]
             }
 
-            const topic = 'timeofficial';
+            // const topic = 'timeofficial';
 
             fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
+            fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
             reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_, });
 
           } catch (error) {
