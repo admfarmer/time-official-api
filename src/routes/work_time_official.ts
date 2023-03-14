@@ -19,7 +19,7 @@ const router = (fastify, { }, next) => {
   });
 
   fastify.post('/profile', async (req: fastify.Request, reply: fastify.Reply) => {
-    console.log('info profile');
+    console.log('Info Profile');
     let profile: any = req.body;
     let time_work: any = req.body.time_work;
     let topic:any;
@@ -133,6 +133,125 @@ const router = (fastify, { }, next) => {
       }
     }
   });
+
+  fastify.post('/scan_profile', async (req: fastify.Request, reply: fastify.Reply) => {
+    console.log('Info Scan Profile');
+    let profile: any = req.body;
+    let time_work: any = req.body.time_work;
+    let topic:any;
+    let topic_full:any= `timeofficial/full`;
+    
+    if(time_work){
+      topic = `timeofficial/${time_work}`;
+    }else{
+      topic = `timeofficial`;
+    }
+
+
+    if (profile) {
+      const rs: any = await workTimeOfficialModel.person_cid(db, profile.cid);
+
+      console.log(rs);
+      
+      if (!rs[0]) {
+        // const topic = 'timeofficial';
+        let info_msg = {
+          info: 'กรุณาลงทำเบียนบุคลากรก่อน'
+        }
+        fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
+        fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info_msg });
+      } else {
+        let info_data: any = await workTimeOfficialModel.select_cid(db, profile.cid);
+
+        if (!info_data[0]) {
+          let cid = profile.cid;
+          let title = rs[0].title;
+          let lname = rs[0].lastname;
+          let fname = rs[0].name;
+          let work_date_in = new Date();
+
+          let info_insert: any = {
+            cid: cid,
+            fullname: `${title}${fname} ${lname}`,
+            work_date_in: moment(work_date_in).tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm:ss'),
+            work_date_out: '0000-00-00 00:00:00',
+            status: '0'
+          }
+
+          let info_msg: any = {
+            msg: [
+              {
+                cid: cid,
+                fullname: `${title}${fname} ${lname}`,
+                work_date_in: moment(work_date_in).tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm:ss'),
+                work_date_out: '0000-00-00 00:00:00',
+                status: '0'
+              }
+            ]
+          }
+
+          try {
+            let rs: any = await workTimeOfficialModel.save(db, info_insert);
+            // const topic = 'timeofficial';
+
+            fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
+            fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
+            reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_insert, });
+
+          } catch (error) {
+            fastify.log.error(error);
+            reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+          }
+        } else {
+
+          let work_date_out = new Date();
+          let x = info_data[0];
+          console.log(x.cid);
+
+
+          let info_update: any = {
+            work_date_out: moment(work_date_out).tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm:ss'),
+          }
+
+          try {
+            let rs: any = await workTimeOfficialModel.update(db, x.id, info_update);
+
+            let info_: any = {
+              cid: x.cid,
+              fullname: x.fullname,
+              work_date_in: moment(x.work_date_in).tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm:ss'),
+              work_date_out: info_update.work_date_out,
+              status: x.status,
+            }
+            // console.log(info_);
+            let info_msg: any = {
+              msg: [
+                {
+                  cid: x.cid,
+                  fullname: x.fullname,
+                  work_date_in: moment(x.work_date_in).tz('Asia/Bangkok').format('YYYY-MM-DD HH:mm:ss'),
+                  work_date_out: info_update.work_date_out,
+                  status: x.status,
+                }
+              ]
+            }
+
+            // const topic = 'timeofficial';
+
+            fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
+            fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
+            reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_, });
+
+          } catch (error) {
+            fastify.log.error(error);
+            reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+          }
+        }
+      }
+    }
+  });
+  
   fastify.delete('/profile', async (req: fastify.Request, reply: fastify.Reply) => {
     console.log('claer profile')
 
@@ -235,8 +354,23 @@ const router = (fastify, { }, next) => {
 
   fastify.post('/personCid', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
     const cid: any = req.body.cid
+    console.log(cid);
+    
     try {
       const rs: any = await workTimeOfficialModel.person_cid(db, cid);
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+    } catch (error) {
+      fastify.log.error(error);
+      reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
+    }
+  })
+
+  fastify.post('/select_cid', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+    const cid: any = req.body.cid
+    console.log(cid);
+    
+    try {
+      const rs: any = await workTimeOfficialModel.select_cid(db, cid);
       reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
     } catch (error) {
       fastify.log.error(error);
