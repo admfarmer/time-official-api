@@ -6,8 +6,11 @@ import * as HttpStatus from 'http-status-codes';
 import * as moment from 'moment-timezone';
 
 import { WorkTimeOfficialModel } from '../models/work_time_official';
+import {Validate} from './validation'
+import { error } from 'console';
 
 const workTimeOfficialModel = new WorkTimeOfficialModel();
+const validate = new Validate();
 
 
 const router = (fastify, { }, next) => {
@@ -30,9 +33,10 @@ const router = (fastify, { }, next) => {
     }else{
       topic = `timeofficial`;
     }
+    let _cid = validate.is_cid(profile.cid);
 
 
-    if (profile) {
+    if (_cid) {
       const rs: any = await workTimeOfficialModel.person_cid(db, profile.cid);
 
       if (!rs[0]) {
@@ -147,8 +151,9 @@ const router = (fastify, { }, next) => {
       topic = `timeofficial`;
     }
 
+    let _cid = validate.is_cid(profile.cid);
 
-    if (profile) {
+    if (_cid) {
       const rs: any = await workTimeOfficialModel.person_cid(db, profile.cid);
 
       console.log(rs);
@@ -275,8 +280,17 @@ const router = (fastify, { }, next) => {
     let work_sdate = req.query.work_sdate
     let work_edate = req.query.work_edate
     try {
-      const rs: any = await workTimeOfficialModel.select_date(db, work_sdate, work_edate);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+      let _work_sdate = validate.is_date(work_sdate);
+      let _work_edate = validate.is_date(work_edate);
+      // console.log(_work_sdate);
+      // console.log(_work_edate);
+      
+      if(_work_sdate && _work_edate){
+        const rs: any = await workTimeOfficialModel.select_date(db, work_sdate, work_edate);
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+      }else{
+        reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate work_sdate Or work_edate false'}, });   
+      }
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
@@ -285,8 +299,13 @@ const router = (fastify, { }, next) => {
   fastify.post('/infoCid', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
     const cid: any = req.body.cid
     try {
-      const rs: any = await workTimeOfficialModel.info_cid(db, cid);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+      let _cid = validate.is_cid(cid);
+      if(_cid){
+          const rs: any = await workTimeOfficialModel.info_cid(db, cid);
+          reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+        }else{
+          reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate cid false'}, });   
+        }
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
@@ -357,8 +376,13 @@ const router = (fastify, { }, next) => {
     console.log(cid);
     
     try {
-      const rs: any = await workTimeOfficialModel.person_cid(db, cid);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+      let _cid = validate.is_cid(cid);
+      if(_cid){
+        const rs: any = await workTimeOfficialModel.person_cid(db, cid);
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });  
+      }else{
+        reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate cid false'}, });   
+      }
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
@@ -370,8 +394,13 @@ const router = (fastify, { }, next) => {
     console.log(cid);
     
     try {
-      const rs: any = await workTimeOfficialModel.select_cid(db, cid);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+      let _cid = validate.is_cid(cid);
+      if(_cid){
+        const rs: any = await workTimeOfficialModel.select_cid(db, cid);
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+        } else {
+          reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate cid false'}, });   
+        }
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })

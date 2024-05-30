@@ -7,9 +7,12 @@ export class WorkTimeOfficialModel {
     return db(this.tableName).orderBy('work_date_in', 'DESC')
   }
 
-  async select_date(db: Knex, work_sdate: any, work_edate: any) {
-    let datas = await db.raw(`SELECT * from ${this.tableName} where date(work_date_in) between '${work_sdate}' and '${work_edate}' order by work_date_in DESC`);
-    return datas[0];
+  select_date(db: Knex, work_sdate: any, work_edate: any) {
+    let _work_sdate = `${work_sdate} 00:00:01`;
+    let _work_edate = `${work_edate} 23:59:59`;
+    return db('work_time_official')
+    .whereBetween('work_date_in',[_work_sdate,_work_edate])
+    .orderBy('work_date_in','DESC')
   }
 
   info_cid(db: Knex, cid: any) {
