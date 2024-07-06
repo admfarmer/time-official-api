@@ -90,6 +90,7 @@ app.register(require('./plugins/mqtt'), {
 });
 
 app.register(require('./routes/index'), { prefix: '/v1', logger: true });
+app.register(require('./routes/login'), { prefix: '/login', logger: true });
 app.register(require('./routes/work_time_official'), { prefix: '/workTime', logger: true });
 
 app.get('/', async (req: fastify.FastifyRequest<http.IncomingMessage>, reply: fastify.FastifyReply<http.ServerResponse>) => {

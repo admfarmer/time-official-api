@@ -4,7 +4,11 @@ export class Validate {
         if (!cid.match(regEx)) return false;  // Invalid format
         return true;
     }
-
+    is_tell(tell:string){
+        let regEx = /^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]$/;
+        if (!tell.match(regEx)) return false;  // Invalid format
+        return true;
+    }
     is_date(date: string) {
         let regEx = /^\d{4}-\d{2}-\d{2}$/;
         if (!date.match(regEx)) return false;  // Invalid format

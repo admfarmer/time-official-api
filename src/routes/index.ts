@@ -14,7 +14,7 @@ const router = (fastify, { }, next) => {
   })
 
   fastify.get('/sign-token', async (req: Request, reply: fastify.Reply) => {
-    const token = fastify.jwt.sign({ foo: 'bar' }, { expiresIn: '1d' });
+    const token = fastify.jwt.sign({ foo: 'bar' });
     reply.send({ token: token });
   })
 
