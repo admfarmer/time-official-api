@@ -28,7 +28,7 @@ export class WorkTimeOfficialModel {
 
   info_work_date(db: Knex, work_date_in: any) {
     return db(this.tableName)
-      .where('work_date_in', work_date_in);
+      .whereRaw('date(work_date_in) = ?', [work_date_in]);
   }
 
   save(db: Knex, datas: any) {

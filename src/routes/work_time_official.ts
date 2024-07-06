@@ -7,7 +7,6 @@ import * as moment from 'moment-timezone';
 
 import { WorkTimeOfficialModel } from '../models/work_time_official';
 import {Validate} from './validation'
-import { error } from 'console';
 
 const workTimeOfficialModel = new WorkTimeOfficialModel();
 const validate = new Validate();
@@ -268,7 +267,19 @@ const router = (fastify, { }, next) => {
   fastify.get('/info', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
     try {
       const rs: any = await workTimeOfficialModel.list(db);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+      let info: any = [];
+      for(let x of rs) {
+        let data:object = {
+          "id": x.id,
+          "cid": x.cid,
+          "fullname": x.fullname,
+          "work_date_in": x.work_date_in,
+          "work_date_out": x.work_date_out,
+          "status": x.status          
+        }
+        await info.push(data);
+      }
+      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info, });
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
@@ -280,14 +291,22 @@ const router = (fastify, { }, next) => {
     let work_sdate = req.query.work_sdate
     let work_edate = req.query.work_edate
     try {
-      let _work_sdate = validate.is_date(work_sdate);
-      let _work_edate = validate.is_date(work_edate);
-      // console.log(_work_sdate);
-      // console.log(_work_edate);
       
-      if(_work_sdate && _work_edate){
+      if(validate.is_date(work_sdate) && validate.is_date(work_edate)){
         const rs: any = await workTimeOfficialModel.select_date(db, work_sdate, work_edate);
-        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+        let info: any = [];
+        for(let x of rs) {
+          let data:object = {
+            "id": x.id,
+            "cid": x.cid,
+            "fullname": x.fullname,
+            "work_date_in": x.work_date_in,
+            "work_date_out": x.work_date_out,
+            "status": x.status          
+          }
+          await info.push(data);
+        }
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info, });
       }else{
         reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate work_sdate Or work_edate false'}, });   
       }
@@ -299,10 +318,21 @@ const router = (fastify, { }, next) => {
   fastify.post('/infoCid', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
     const cid: any = req.body.cid
     try {
-      let _cid = validate.is_cid(cid);
-      if(_cid){
+      if(validate.is_cid(cid)){
           const rs: any = await workTimeOfficialModel.info_cid(db, cid);
-          reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+          let info: any = [];
+          for(let x of rs) {
+            let data:object = {
+              "id": x.id,
+              "cid": x.cid,
+              "fullname": x.fullname,
+              "work_date_in": x.work_date_in,
+              "work_date_out": x.work_date_out,
+              "status": x.status          
+            }
+            await info.push(data);
+          }
+          reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info, });
         }else{
           reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate cid false'}, });   
         }
@@ -314,9 +344,26 @@ const router = (fastify, { }, next) => {
 
   fastify.post('/infoWorkDate', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
     const work_date: any = req.body.work_date
+
     try {
-      const rs: any = await workTimeOfficialModel.info_work_date(db, work_date);
-      reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+      if(validate.is_date(work_date)){
+        const rs: any = await workTimeOfficialModel.info_work_date(db, work_date);
+        let info: any = [];
+        for(let x of rs) {
+          let data:object = {
+            "id": x.id,
+            "cid": x.cid,
+            "fullname": x.fullname,
+            "work_date_in": x.work_date_in,
+            "work_date_out": x.work_date_out,
+            "status": x.status          
+          }
+          await info.push(data);
+        }
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info, });
+      }else{
+        reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate date false'}, });   
+      }
     } catch (error) {
       fastify.log.error(error);
       reply.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ statusCode: HttpStatus.INTERNAL_SERVER_ERROR, message: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR) })
@@ -376,10 +423,19 @@ const router = (fastify, { }, next) => {
     console.log(cid);
     
     try {
-      let _cid = validate.is_cid(cid);
-      if(_cid){
+      if(validate.is_cid(cid)){
         const rs: any = await workTimeOfficialModel.person_cid(db, cid);
-        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });  
+        let info: any = [];
+        for(let x of rs) {
+          let data:object = {
+            "idcard": x.idcard,
+            "title": x.title,
+            "name": x.name,
+            "lastname": x.lastname      
+          }
+          await info.push(data);
+        }
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info, });  
       }else{
         reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate cid false'}, });   
       }
@@ -394,10 +450,21 @@ const router = (fastify, { }, next) => {
     console.log(cid);
     
     try {
-      let _cid = validate.is_cid(cid);
-      if(_cid){
+      if(validate.is_cid(cid)){
         const rs: any = await workTimeOfficialModel.select_cid(db, cid);
-        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: rs, });
+        let info: any = [];
+        for(let x of rs) {
+          let data:object = {
+            "id": x.id,
+            "cid": x.cid,
+            "fullname": x.fullname,
+            "work_date_in": x.work_date_in,
+            "work_date_out": x.work_date_out,
+            "status": x.status          
+          }
+          await info.push(data);
+        }
+        reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info, });
         } else {
           reply.status(HttpStatus.OK).send({ statusCode: 201, info: {error:'validate cid false'}, });   
         }
