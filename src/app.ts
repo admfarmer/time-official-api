@@ -12,7 +12,14 @@ import { Server, IncomingMessage, ServerResponse } from 'http';
 
 import helmet = require('fastify-helmet');
 
-const app: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify({ logger: { level: 'info' }, bodyLimit: 5 * 1048576 });
+const app: fastify.FastifyInstance<Server, IncomingMessage, ServerResponse> = fastify({ 
+  logger: false,
+  // logger: { level: "info" },
+  ignoreTrailingSlash: true,
+  maxParamLength: 200,
+  caseSensitive: true,
+   bodyLimit: 5 * 1048576 
+});
 
 app.register(require('fastify-formbody'));
 app.register(require('fastify-cors'), {});
