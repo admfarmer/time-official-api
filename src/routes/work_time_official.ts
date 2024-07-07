@@ -418,7 +418,7 @@ const router = (fastify, { }, next) => {
     }
   })
 
-  fastify.post('/personCid', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+  fastify.post('/personCid', async (req: fastify.Request, reply: fastify.Reply) => {
     const cid: any = req.body.cid
     console.log(cid);
     
@@ -445,7 +445,7 @@ const router = (fastify, { }, next) => {
     }
   })
 
-  fastify.post('/select_cid', { preHandler: [fastify.authenticate] }, async (req: fastify.Request, reply: fastify.Reply) => {
+  fastify.post('/select_cid', async (req: fastify.Request, reply: fastify.Reply) => {
     const cid: any = req.body.cid
     console.log(cid);
     
