@@ -3,7 +3,7 @@ var mqtt = require('mqtt')
 
 async function fastifyMqtt(fastify, opts, next) {
   try {
-    const client = mqtt.connect(`mqtt://10.0.0.17`, {
+    const client = mqtt.connect(`mqtt://10.0.0.115`, {
       clientId: 'q4u_api_client-' + Math.floor(Math.random() * 1000000),
       username: opts.username,
       password: opts.password
