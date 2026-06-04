@@ -8,6 +8,7 @@ async function fastifyMqtt(fastify, opts, next) {
       username: opts.username,
       password: opts.password
     })
+    console.log('MQTT client connecting to broker...' , client)
     fastify.decorate('mqttClient', client)
     next()
   } catch (err) {
