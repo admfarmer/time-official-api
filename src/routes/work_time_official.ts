@@ -79,6 +79,7 @@ const router = (fastify, { }, next) => {
           try {
             let rs: any = await workTimeOfficialModel.save(db, info_insert);
             // const topic = 'timeofficial';
+            console.log('update :', rs);
             console.log(topic);
             fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
             fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
@@ -101,6 +102,7 @@ const router = (fastify, { }, next) => {
 
           try {
             let rs: any = await workTimeOfficialModel.update(db, x.id, info_update);
+            console.log('update :', rs);
 
             let info_: any = {
               cid: x.cid,
