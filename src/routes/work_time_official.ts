@@ -21,7 +21,7 @@ const router = (fastify, { }, next) => {
   });
 
   fastify.post('/profile', async (req: fastify.Request, reply: fastify.Reply) => {
-    console.log('Info Profile');
+    // console.log('Info Profile');
     let profile: any = req.body;
     let time_work: any = req.body.time_work;
     let topic:any;
@@ -79,8 +79,8 @@ const router = (fastify, { }, next) => {
           try {
             let rs: any = await workTimeOfficialModel.save(db, info_insert);
             // const topic = 'timeofficial';
-            console.log('update :', rs);
-            console.log(topic);
+            // console.log('update :', rs);
+            // console.log(topic);
             fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
             fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
             reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_insert, });
@@ -93,7 +93,7 @@ const router = (fastify, { }, next) => {
 
           let work_date_out = profile.work_date_out;
           let x = info_data[0];
-          console.log(x.cid);
+          // console.log(x.cid);
 
 
           let info_update: any = {
@@ -102,7 +102,7 @@ const router = (fastify, { }, next) => {
 
           try {
             let rs: any = await workTimeOfficialModel.update(db, x.id, info_update);
-            console.log('update :', rs);
+            // console.log('update :', rs);
 
             let info_: any = {
               cid: x.cid,
@@ -111,7 +111,7 @@ const router = (fastify, { }, next) => {
               work_date_out: info_update.work_date_out,
               status: x.status,
             }
-            console.log(info_);
+            // console.log(info_);
             let info_msg: any = {
               msg: [
                 {
@@ -123,9 +123,9 @@ const router = (fastify, { }, next) => {
                 }
               ]
             }
-            console.log(info_msg);
+            // console.log(info_msg);
             // const topic = 'timeofficial';
-            console.log(topic);
+            // console.log(topic);
             fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
             fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
             reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_, });
@@ -157,7 +157,7 @@ const router = (fastify, { }, next) => {
     if (_cid) {
       const rs: any = await workTimeOfficialModel.person_cid(db, profile.cid);
 
-      console.log(rs);
+      // console.log(rs);
       
       if (!rs[0]) {
         // const topic = 'timeofficial';
@@ -200,8 +200,8 @@ const router = (fastify, { }, next) => {
           try {
             let rs: any = await workTimeOfficialModel.save(db, info_insert);
             // const topic = 'timeofficial';
-            console.log('update :', rs);
-            console.log(topic);
+            // console.log('update :', rs);
+            // console.log(topic);
             fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
             fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
             reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_insert, });
@@ -214,7 +214,7 @@ const router = (fastify, { }, next) => {
 
           let work_date_out = new Date();
           let x = info_data[0];
-          console.log(x.cid);
+          // console.log(x.cid);
 
 
           let info_update: any = {
@@ -223,7 +223,7 @@ const router = (fastify, { }, next) => {
 
           try {
             let rs: any = await workTimeOfficialModel.update(db, x.id, info_update);
-            console.log('update :', rs);
+            // console.log('update :', rs);
             let info_: any = {
               cid: x.cid,
               fullname: x.fullname,
@@ -245,8 +245,8 @@ const router = (fastify, { }, next) => {
             }
 
             // const topic = 'timeofficial';
-            console.log(topic);
-            console.log(info_msg);
+            // console.log(topic);
+            // console.log(info_msg);
             fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
             fastify.mqttClient.publish(topic_full, JSON.stringify(info_msg), { qos: 0, retain: false });
             reply.status(HttpStatus.OK).send({ statusCode: HttpStatus.OK, info: info_, });
@@ -264,10 +264,10 @@ const router = (fastify, { }, next) => {
   });
   
   fastify.delete('/profile', async (req: fastify.Request, reply: fastify.Reply) => {
-    console.log('claer profile')
+    // console.log('claer profile')
 
     const profile: any = {}
-    console.log(profile);
+    // console.log(profile);
 
   });
 
@@ -427,7 +427,7 @@ const router = (fastify, { }, next) => {
 
   fastify.post('/personCid', async (req: fastify.Request, reply: fastify.Reply) => {
     const cid: any = req.body.cid
-    console.log(cid);
+    // console.log(cid);
     
     try {
       if(validate.is_cid(cid)){
@@ -454,7 +454,7 @@ const router = (fastify, { }, next) => {
 
   fastify.post('/select_cid', async (req: fastify.Request, reply: fastify.Reply) => {
     const cid: any = req.body.cid
-    console.log(cid);
+    // console.log(cid);
     
     try {
       if(validate.is_cid(cid)){
