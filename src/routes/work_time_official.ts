@@ -109,7 +109,7 @@ const router = (fastify, { }, next) => {
               work_date_out: info_update.work_date_out,
               status: x.status,
             }
-            // console.log(info_);
+            console.log(info_);
             let info_msg: any = {
               msg: [
                 {
@@ -121,7 +121,7 @@ const router = (fastify, { }, next) => {
                 }
               ]
             }
-
+            console.log(info_msg);
             // const topic = 'timeofficial';
             console.log(topic);
             fastify.mqttClient.publish(topic, JSON.stringify(info_msg), { qos: 0, retain: false });
